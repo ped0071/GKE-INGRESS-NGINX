@@ -51,6 +51,7 @@ No arquivo de pipeline é declarado 3 stages:
 - ``deploy``
 - ``config``
 - ``build``
+
 É declarado que a variável "$credentials_file" que está armazenado dentro do repositório do Gitlab, na primeira configuração temos o "docker build" que será onde irá realizar o build da imagem e subir para o dockerhub.
 Na próxima configuração temos o "provisioning_infrastructure" onde é realizado o comando "echo "$credentials_file" > credentials.json", que irá armazenar a informação da configuração do usuário no arquivo credentials.json que é necessário para executarmos os comandos do terraform. Logo em seguida temos a execução dos comandos "terraform init" que instala todas as dependências necessárias para ser executado os arquivos e o "terraform apply -auto-approve" para que aplique as configurações de terraform. E isso somente será executado na branch "main" com a tag "runner" que é a máquina que está configurada com o Gitlab Runner.
 
