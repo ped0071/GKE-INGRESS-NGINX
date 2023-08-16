@@ -1,0 +1,45 @@
+stages:
+  - build
+  - config
+  - deploy
+
+variables:
+  credentials_file: "$credentials_file"
+
+docker build:
+  stage: build
+  image: docker:latest
+  before_script:
+    - export DOCKER_TAG=latest
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+  script:
+    - docker build -t "ped071/hello-world:$DOCKER_TAG" .
+    - docker push "ped071/hello-world:$DOCKER_TAG"
+  tags:
+  - runner
+  only:
+  - main
+
+provisioning_infrastructure:
+  stage: config
+  script:
+    - echo "$credentials_file" > credentials.json
+    - terraform init
+    - terraform apply -auto-approve
+  tags:
+  - runner
+  only:
+  - main
+
+Deploy Kubernetes:
+  stage: deploy
+  environment: production
+  script:
+    - echo "$credentials_file" > credentials.json
+    - ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --private-key=/home/gitlab-runner/.ssh/id_rsa -i hosts playbook.yml
+
+  tags:
+  - runner
+  only:
+  - main
+  

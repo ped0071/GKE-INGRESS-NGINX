@@ -1,0 +1,24 @@
+---
+- name: Configuration GCLOUD
+  hosts: gcp_hosts
+  become: true
+  roles:
+    - gcloud
+
+- name: Install kubectl
+  become: true
+  hosts: gcp_hosts
+  roles:
+    - kube_install
+
+- name: Install and configure helm
+  become: true
+  hosts: gcp_hosts
+  roles:
+    - helm
+
+- name: Deploy Kubernetes
+  become: true
+  hosts: gcp_hosts
+  roles:
+    - deploy_kubernetes

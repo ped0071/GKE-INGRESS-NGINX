@@ -1,0 +1,51 @@
+---
+- name: Download and install Helm
+  become: true
+  shell: |
+    curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+    sudo apt-get install apt-transport-https -y
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+    sudo apt-get update
+    sudo apt-get install helm -y
+  args:
+    executable: /bin/bash
+
+- name: Add Helm repository for ingress-nginx
+  shell: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+  args:
+    executable: /bin/bash
+
+- name: Update Helm repositories
+  shell: helm repo update
+  args:
+    executable: /bin/bash
+
+- name: Install nginx-ingress chart
+  shell: helm install nginx-ingress ingress-nginx/ingress-nginx
+  args:
+    executable: /bin/bash
+
+- name: Update apt cache
+  become: true
+  apt:
+    update_cache: yes
+
+- name: Install jq package
+  become: true
+  apt:
+    name: jq
+    state: present
+
+- name: Verificar se o arquivo YAML de configuração existe
+  stat:
+    path: hello-world.yml
+  register: file_check
+
+- name: Copiar arquivo de configuração Kubernetes para a máquina de controle
+  copy:
+    src: hello-world.yml
+    dest: /tmp/hello-world.yml
+
+- name: Pause for 60 seconds
+  pause:
+    seconds: 60

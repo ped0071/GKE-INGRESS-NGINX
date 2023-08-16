@@ -1,0 +1,4 @@
+---
+gke_cluster_name: k8s-cluster
+gcp_zone: us-central1-a
+gcp_project_id: k8s-project-392918

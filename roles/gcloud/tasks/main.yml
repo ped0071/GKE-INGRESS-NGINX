@@ -1,0 +1,21 @@
+---
+- name: Copiar o arquivo credentials.json para o servidor remoto
+  copy:
+    src: credentials.json
+    dest: /tmp/credentials.json
+
+- name: Conectando com o Gcloud
+  shell: gcloud auth activate-service-account --key-file=/tmp/credentials.json
+  args:
+    executable: /bin/bash
+
+- name: Instalando o Google Cloud SDK GKE auth plugin
+  apt:
+    name: google-cloud-sdk-gke-gcloud-auth-plugin
+    state: present
+  become: true
+
+- name: Pegando o GKE cluster credentials
+  shell: gcloud container clusters get-credentials {{ gke_cluster_name }} --zone {{ gcp_zone }} --project {{ gcp_project_id }}
+  args:
+    executable: /bin/bash

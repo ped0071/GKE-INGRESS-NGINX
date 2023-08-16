@@ -1,0 +1,19 @@
+---
+- name: Download kubectl binary
+  shell: |
+    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  args:
+    chdir: /tmp
+  register: kubectl_download
+
+- name: Make kubectl executable
+  shell: chmod +x kubectl
+  args:
+    chdir: /tmp
+  when: kubectl_download is succeeded
+
+- name: Move kubectl to ~/.local/bin
+  command: mv /tmp/kubectl /usr/local/bin/kubectl
+  args:
+    creates: /usr/local/bin/kubectl
+  when: kubectl_download is succeeded

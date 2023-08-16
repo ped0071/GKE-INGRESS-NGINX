@@ -1,0 +1,14 @@
+{
+  "name": "node-hello-app",
+  "version": "0.1.0",
+  "description": "Aplicação Hello World",
+  "main": "app.js",
+  "dependencies": {
+    "os": "^0.1.1"
+  },
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Pedro",
+  "license": "ISC"
+}

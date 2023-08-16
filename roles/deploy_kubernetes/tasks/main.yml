@@ -1,0 +1,29 @@
+---
+- name: Expondo o IP externo do Nginx Ingress
+  become: true
+  shell: >
+    kubectl get service nginx-ingress-ingress-nginx-controller -ojson | jq -r '.status.loadBalancer.ingress[].ip' > /home/gcp/ip.json
+  args:
+    executable: /bin/bash
+
+- name: Substituir variável no arquivo main.yml usando sed
+  become: true
+  shell: sed -i "s/\$NGINX_INGRESS_IP/$(cat /home/gcp/ip.json)/g" /tmp/hello-world.yml
+
+- name: Deletando o validation webhook do nginx-ingress
+  command: kubectl delete validatingwebhookconfigurations nginx-ingress-ingress-nginx-admission
+  args:
+    executable: /bin/bash
+
+- name: Aplicar configuração no cluster Kubernetes
+  command: kubectl apply -f /tmp/hello-world.yml
+  args:
+    executable: /bin/bash
+
+- name: Ler o conteúdo do arquivo ip.json
+  shell: cat /home/gcp/ip.json
+  register: conteudo_ip
+
+- name: Exibir o conteúdo do arquivo ip.json
+  debug:
+    var: conteudo_ip.stdout
