@@ -2,13 +2,10 @@
 
 # Gitlab Runner
 
-```
 A pipeline foi feita com o Gitlab CI/CD, e por isso foi feita a criação de uma instância manual na GCP e adicionado algumas configurações para que rode a pipeline diretamente nesta instância. Foi instalado na máquina o Terraform, Ansible, Gitlab Runner e Docker, foi feito também a criação de uma chave ssh do tipo rsa para fazer conexão com a máquina que vai ser criada com comunicação com o Cluster.
-```
 
 # Terraform
 
-```
 Na pasta network foi criada a parte da criação da VPC e expondo algumas variáveis que serão preenchidas no arquivo de criação do cluster puxando como module.
 
 No arquivo k8s.tf é feita a criação do module "network" com o source da pasta network criada anteriormente, e preenchendo as variáveis necessárias:
@@ -30,11 +27,9 @@ No arquivo variables.tf foi definido algumas variáveis simples como por exemplo
 - ``location``
 - ``cluster_name``
 - ``ssh_key_file - que está configurada como vazia pois será preenchida com a variável do Gitlab.``
-```
 
 # Ansible
 
-```
 Nos arquivos de configuração do Ansible existem 4 roles configuradas.
 
 O Gcloud, que é onde será feita a configuração de autenticação ao user criado, e a instalação do pacote "google-cloud-sdk-gke-gcloud-auth-plugin" para ser feita a conexão com o cluster do GKE, e também atrelado a algumas variáveis:
@@ -49,11 +44,9 @@ A role Helm é onde será feita a instalação do helm e feita a instalação do
 E por último o deploy_kubernetes que executa um comando que irá filtrar especificamente o External IP do service Nginx-ingress e mandá-lo para o arquivo ip.json que será localizado em /home/gcp/ip.json. Logo após executando um "sed -i" para que substitua a variável "$NGINX_INGRESS_IP" dentro do nosso arquivo de configuração do kubernetes localizado em /tmp/hello-world.yml e substituindo pelo conteúdo armazenado dentro do ip.json. Em seguida ele executa um delete em um "validatingwebhookconfiguration" do nginx-ingress que faz termos um erro na hora da execução do deploy, e logo após executamos o "kubectl apply -f /tmp/hello-world.yml" que irá aplicar as configurações feitas no arquivo.
 
 Temos também o arquivo hosts que é onde está configurado o IP da máquina em que ele irá se conectar o usuário a ser utilizado, junto com o arquivo "playbook.yml" que seta a ordem de execução das roles.
-```
 
 # Gitlab CI/CD
 
-```
 No arquivo de pipeline é declarado 3 stages:
 - ``deploy``
 - ``config``
@@ -69,17 +62,13 @@ Foi declarado também algumas variáveis dentro do Gitlab:
 - ``credentials_file - Que é o nosso arquivo de login do usuário da GCP``
 - ``CI_REGISTRY_USER - Que é o meu login no DockerHub``
 - ``CI_REGISTRY_PASSWORD - Que é a minha senha no DockerHub``
-```
 
 # Aplicação Nodejs
 
-```
 Também adicionei uma aplicação simples em NodeJS que printa um "Hello-World", "Version: 0.1" e o "Hostname:", e junto disso o Dockerfile para criar a imagem no DockerHub.
-```
 
 # Execução do projeto
 
-```
 Para ser executado o projeto fora da pipeline é preciso passar a variável ssh_key_file, manualmente dentro do variables.tf que seria você criar uma chave ssh do tipo rsa, e passar na variável o usuário que será feito para logar na instância e a chave logo em seguida user:chave.
 
 É preciso também ter o arquivo de credenciais do usuário gcp na sua máquina como "credentials.json", e também fazer as alterações necessárias do arquivo variables.tf como por exemplo setar o projeto em que irá executar, e logo após executar o comando "terraform init" e "terraform apply".
@@ -87,4 +76,3 @@ Para ser executado o projeto fora da pipeline é preciso passar a variável ssh_
 Na parte do ansible, temos que ter criado uma máquina configurada com o ansible e também com o arquivo ssh dentro dela, para que possa ser feito a comunicação entre as máquinas, verificar as variáveis dentro da role gcloud e alterá-las e executar o comando "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook --private-key=/home/gitlab-runner/.ssh/id_rsa -i hosts playbook.yml".
 
 No final da execução do comando ansible, ele retornará um “conteúdo.ip.stdout:” e na frente um ip, é só copiar este ip e inserir na frente “.nip.io” que você será redirecionado a URL da aplicação rodando.
-```
